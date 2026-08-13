@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CDM UI 原型 — AdminLTE 4 (Bootstrap 5)</title>
+
+<!-- AdminLTE 4.1.0 (Bootstrap 5) 由 CDN 載入，需要網路 -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.1.0/dist/css/adminlte.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/styles/overlayscrollbars.min.css">
+
+<style>
+  /* 只有這個原型頁用的小調整 */
+  .proto-note {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 12px 16px;
+      margin-bottom: 1rem;
+      font-size: 14px;
+  }
+  .proto-note code { background: rgba(0,0,0,.05); padding: 1px 5px; border-radius: 3px; }
+</style>
+</head>
+
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+
+  <!-- ── 上方列 ───────────────────────────────────────── -->
+  <nav class="app-header navbar navbar-expand bg-body">
+    <div class="container-fluid">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" data-lte-toggle="sidebar" href="#" role="button">
+            <i class="bi bi-list"></i>
+          </a>
+        </li>
+      </ul>
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item dropdown user-menu">
+          <a href="#" class="nav-link dropdown-toggle" data-bs-toggle="dropdown">
+            <i class="bi bi-person-circle me-1"></i>
+            <span class="d-none d-md-inline">s_admin</span>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-lg dropdown-menu-end">
+            <li class="user-footer d-flex justify-content-between p-2">
+              <a href="#" class="btn btn-default btn-flat">個人資料</a>
+              <a href="#" class="btn btn-default btn-flat">登出</a>
+            </li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </nav>
+
+  <!-- ── 側邊選單 ─────────────────────────────────────── -->
+  <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+    <div class="sidebar-brand">
+      <a href="#" class="brand-link">
+        <span class="brand-text fw-light">Partner Tech</span>
+      </a>
+    </div>
+    <div class="sidebar-wrapper">
+      <nav class="mt-2">
+        <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu">
+          <li class="nav-item menu-open">
+            <a href="#" class="nav-link active">
+              <i class="nav-icon bi bi-house-door"></i>
+              <p>首頁 <i class="nav-arrow bi bi-chevron-right"></i></p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item"><a href="#" class="nav-link active"><i class="nav-icon bi bi-circle"></i><p>後台首頁</p></a></li>
+              <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon bi bi-circle"></i><p>下載</p></a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon bi bi-hdd-stack"></i>
+              <p>設備管理 <i class="nav-arrow bi bi-chevron-right"></i></p>
+            </a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon bi bi-circle"></i><p>設備管理</p></a></li>
+              <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon bi bi-circle"></i><p>通知</p></a></li>
+            </ul>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon bi bi-display"></i>
+              <p>監控周邊 <i class="nav-arrow bi bi-chevron-right"></i></p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon bi bi-people"></i>
+              <p>用戶管理 <i class="nav-arrow bi bi-chevron-right"></i></p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon bi bi-journal-text"></i>
+              <p>日誌管理 <i class="nav-arrow bi bi-chevron-right"></i></p>
+            </a>
+          </li>
+          <li class="nav-item">
+            <a href="#" class="nav-link">
+              <i class="nav-icon bi bi-gear"></i>
+              <p>系統管理 <i class="nav-arrow bi bi-chevron-right"></i></p>
+            </a>
+          </li>
+        </ul>
+      </nav>
+    </div>
+  </aside>
+
+  <!-- ── 內容 ─────────────────────────────────────────── -->
+  <main class="app-main">
+
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-6"><h3 class="mb-0">首頁</h3></div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+              <li class="breadcrumb-item"><a href="#">首頁</a></li>
+              <li class="breadcrumb-item active">後台首頁</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="container-fluid">
+
+        <div class="proto-note">
+          <strong>這是靜態原型，不是實際系統。</strong>
+          用 AdminLTE 4.1.0 + Bootstrap 5 畫出 CDM 後台首頁的樣子，資料是假的、按鈕沒有功能。
+          目的是讓你判斷「值不值得投入」，對照組請開
+          <code>http://localhost:8000</code> 的現況。
+        </div>
+
+        <!-- 任務 -->
+        <div class="card mb-4">
+          <div class="card-header">
+            <h3 class="card-title">任務</h3>
+          </div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-lg-4 col-6">
+                <div class="small-box text-bg-primary">
+                  <div class="inner">
+                    <h3>128</h3>
+                    <p>已執行完成</p>
+                  </div>
+                  <i class="small-box-icon bi bi-check2-circle"></i>
+                </div>
+              </div>
+              <div class="col-lg-4 col-6">
+                <div class="small-box text-bg-warning">
+                  <div class="inner">
+                    <h3>7</h3>
+                    <p>未接收</p>
+                  </div>
+                  <i class="small-box-icon bi bi-hourglass-split"></i>
+                </div>
+              </div>
+              <div class="col-lg-4 col-6">
+                <div class="small-box text-bg-success">
+                  <div class="inner">
+                    <h3>34</h3>
+                    <p>已接收</p>
+                  </div>
+                  <i class="small-box-icon bi bi-inbox"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- 設備狀態 -->
+          <div class="col-lg-6">
+            <div class="card mb-4">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title">設備狀態</h3>
+                <span class="badge text-bg-secondary">27 種機型</span>
+              </div>
+              <div class="card-body p-0">
+                <table class="table table-hover text-center mb-0 align-middle">
+                  <thead>
+                    <tr>
+                      <th class="text-start ps-3">設備類型</th>
+                      <th>上線</th>
+                      <th>離線</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td class="text-start ps-3">A4-1-B</td><td>0</td><td>0</td></tr>
+                    <tr><td class="text-start ps-3">A4-1-N</td><td>0</td><td class="text-danger fw-bold">1</td></tr>
+                    <tr><td class="text-start ps-3">A5</td><td>2</td><td class="text-danger fw-bold">6</td></tr>
+                    <tr><td class="text-start ps-3">A5-1-ARM</td><td>0</td><td>0</td></tr>
+                    <tr><td class="text-start ps-3">A5-1-E</td><td>0</td><td class="text-danger fw-bold">2</td></tr>
+                    <tr><td class="text-start ps-3">A5-2-ADL</td><td>0</td><td class="text-danger fw-bold">1</td></tr>
+                    <tr><td class="text-start ps-3">A5-2-R</td><td>1</td><td class="text-danger fw-bold">1</td></tr>
+                    <tr><td class="text-start ps-3">A5-2-T</td><td>0</td><td class="text-danger fw-bold">7</td></tr>
+                    <tr><td class="text-start ps-3">A5-Android</td><td>0</td><td class="text-danger fw-bold">1</td></tr>
+                    <tr><td class="text-start ps-3">A7</td><td>3</td><td class="text-danger fw-bold">4</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="card-footer d-flex justify-content-center">
+                <nav>
+                  <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled"><a class="page-link" href="#">&laquo;</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+
+          <!-- 自訂監控清單 -->
+          <div class="col-lg-6">
+            <div class="card mb-4">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title">自訂監控清單</h3>
+                <span class="badge text-bg-danger">10 項異常</span>
+              </div>
+              <div class="card-body p-0">
+                <table class="table table-hover mb-0 align-middle">
+                  <thead>
+                    <tr>
+                      <th class="ps-3">設備SN - 顯示名稱</th>
+                      <th class="text-center" style="width:130px">狀態</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr><td class="ps-3 text-truncate" style="max-width:0">PT88AEDD83B2B9 - PrinterMonitor</td><td class="text-center"><span class="badge text-bg-warning">紙張不足</span></td></tr>
+                    <tr><td class="ps-3 text-truncate" style="max-width:0">PT88AEDD83B2B9 - test12</td><td class="text-center"><span class="badge text-bg-warning">溫度偏高</span></td></tr>
+                    <tr><td class="ps-3 text-truncate" style="max-width:0">A80A24800778 - debug</td><td class="text-center"><span class="badge text-bg-danger">連線中斷</span></td></tr>
+                    <tr><td class="ps-3 text-truncate" style="max-width:0">PT88AEDD83B2B9 - test5</td><td class="text-center"><span class="badge text-bg-warning">紙張不足</span></td></tr>
+                    <tr><td class="ps-3 text-truncate" style="max-width:0">PT88AEDD83B2B9 - test11</td><td class="text-center"><span class="badge text-bg-danger">服務停止</span></td></tr>
+                    <tr><td class="ps-3 text-truncate" style="max-width:0">PT88AEDD83B2B9 - test4</td><td class="text-center"><span class="badge text-bg-warning">溫度偏高</span></td></tr>
+                    <tr><td class="ps-3 text-truncate" style="max-width:0">PT88AEDD83B2B9 - test10</td><td class="text-center"><span class="badge text-bg-warning">紙張不足</span></td></tr>
+                    <tr><td class="ps-3 text-truncate" style="max-width:0">PT88AEDD83B2B9 - test9</td><td class="text-center"><span class="badge text-bg-danger">連線中斷</span></td></tr>
+                    <tr><td class="ps-3 text-truncate" style="max-width:0">PT88AEDD83B2B9 - test8</td><td class="text-center"><span class="badge text-bg-warning">溫度偏高</span></td></tr>
+                    <tr><td class="ps-3 text-truncate" style="max-width:0">PT88AEDD83B2B9 - test7</td><td class="text-center"><span class="badge text-bg-warning">紙張不足</span></td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="card-footer d-flex justify-content-center">
+                <nav>
+                  <ul class="pagination pagination-sm mb-0">
+                    <li class="page-item disabled"><a class="page-link" href="#">&laquo;</a></li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+                  </ul>
+                </nav>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 列表頁示意：設備管理 -->
+        <div class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title">設備管理（列表頁示意）</h3>
+            <div>
+              <button class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>新增</button>
+              <button class="btn btn-outline-secondary btn-sm"><i class="bi bi-pencil me-1"></i>修改</button>
+              <button class="btn btn-outline-danger btn-sm"><i class="bi bi-trash me-1"></i>刪除</button>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="row mb-3">
+              <div class="col-md-4">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text"><i class="bi bi-search"></i></span>
+                  <input type="text" class="form-control" placeholder="搜尋設備SN或標籤">
+                </div>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th style="width:36px"><input class="form-check-input" type="checkbox"></th>
+                    <th>設備SN</th>
+                    <th>標籤</th>
+                    <th>機型</th>
+                    <th class="text-center">狀態</th>
+                    <th class="text-center">任務</th>
+                    <th class="text-center">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><input class="form-check-input" type="checkbox"></td>
+                    <td>A80A24800778</td><td>台北門市-01</td><td>A5-2-T</td>
+                    <td class="text-center"><span class="badge text-bg-success">上線</span></td>
+                    <td class="text-center"><span class="text-muted">Done 1</span></td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-outline-primary"><i class="bi bi-grid-3x3-gap"></i></button>
+                      <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><input class="form-check-input" type="checkbox"></td>
+                    <td>PT88AEDD83B2B9</td><td>測試機</td><td>A5</td>
+                    <td class="text-center"><span class="badge text-bg-danger">離線</span></td>
+                    <td class="text-center"><span class="text-danger">Done 5 / Error 1</span></td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-outline-primary"><i class="bi bi-grid-3x3-gap"></i></button>
+                      <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button>
+                    </td>
+                  </tr>
+                  <tr>
+                    <td><input class="form-check-input" type="checkbox"></td>
+                    <td>PT88D7F653A4F6</td><td>倉庫-A</td><td>A7</td>
+                    <td class="text-center"><span class="badge text-bg-success">上線</span></td>
+                    <td class="text-center"><span class="text-muted">—</span></td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-outline-primary"><i class="bi bi-grid-3x3-gap"></i></button>
+                      <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-pencil"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <div class="float-end d-none d-sm-inline">CDM 2.0.0.0</div>
+    <strong>Partner Tech Corp.</strong>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/browser/overlayscrollbars.browser.es6.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.1.0/dist/js/adminlte.min.js"></script>
+</body>
+</html>
