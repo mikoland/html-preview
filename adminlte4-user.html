@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CDM UI 原型 — 用戶管理 (AdminLTE 4)</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.1.0/dist/css/adminlte.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/styles/overlayscrollbars.min.css">
+
+<style>
+  .proto-note { background:#fff3cd; border-left:4px solid #ffc107; padding:12px 16px; margin-bottom:1rem; font-size:14px; }
+  .proto-note code { background:rgba(0,0,0,.05); padding:1px 5px; border-radius:3px; }
+  .avatar {
+      width:34px; height:34px; border-radius:50%;
+      display:inline-flex; align-items:center; justify-content:center;
+      font-size:13px; font-weight:600; color:#fff; flex:0 0 34px;
+  }
+  .pw-hint { font-size:12px; }
+</style>
+</head>
+
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+
+  <nav class="app-header navbar navbar-expand bg-body">
+    <div class="container-fluid">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" data-lte-toggle="sidebar" href="#"><i class="bi bi-list"></i></a></li>
+      </ul>
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="adminlte4-preview.html"><i class="bi bi-house-door me-1"></i>首頁</a></li>
+        <li class="nav-item"><a class="nav-link" href="adminlte4-device.html"><i class="bi bi-hdd-stack me-1"></i>設備管理</a></li>
+        <li class="nav-item"><a class="nav-link" href="adminlte4-role.html"><i class="bi bi-shield-lock me-1"></i>角色管理</a></li>
+        <li class="nav-item"><a class="nav-link"><i class="bi bi-person-circle me-1"></i>s_admin</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+    <div class="sidebar-brand"><a href="#" class="brand-link"><span class="brand-text fw-light">Partner Tech</span></a></div>
+    <div class="sidebar-wrapper">
+      <nav class="mt-2">
+        <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu">
+          <li class="nav-item"><a href="adminlte4-preview.html" class="nav-link"><i class="nav-icon bi bi-house-door"></i><p>首頁</p></a></li>
+          <li class="nav-item"><a href="adminlte4-device.html" class="nav-link"><i class="nav-icon bi bi-hdd-stack"></i><p>設備管理</p></a></li>
+          <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon bi bi-display"></i><p>監控周邊</p></a></li>
+          <li class="nav-item menu-open">
+            <a href="#" class="nav-link active"><i class="nav-icon bi bi-people"></i><p>用戶管理 <i class="nav-arrow bi bi-chevron-right"></i></p></a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item"><a href="adminlte4-role.html" class="nav-link"><i class="nav-icon bi bi-circle"></i><p>角色管理</p></a></li>
+              <li class="nav-item"><a href="#" class="nav-link active"><i class="nav-icon bi bi-circle"></i><p>用戶管理</p></a></li>
+              <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon bi bi-circle"></i><p>公司管理</p></a></li>
+            </ul>
+          </li>
+          <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon bi bi-journal-text"></i><p>日誌管理</p></a></li>
+          <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon bi bi-gear"></i><p>系統管理</p></a></li>
+        </ul>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-6"><h3 class="mb-0">用戶管理</h3></div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+              <li class="breadcrumb-item"><a href="#">用戶管理</a></li>
+              <li class="breadcrumb-item active">用戶管理</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="container-fluid">
+
+        <div class="proto-note">
+          <strong>靜態原型，資料是假的。</strong>
+          點「新增」或列上的 <i class="bi bi-pencil"></i> 可以打開<strong>用戶表單</strong>，
+          點狀態欄的開關可以看啟用／停用的樣子。對照組請開 <code>http://localhost:8000</code>。
+        </div>
+
+        <div class="card mb-4">
+          <div class="card-header d-flex justify-content-between align-items-center">
+            <h3 class="card-title">使用者清單</h3>
+            <div>
+              <span class="badge text-bg-success me-1">啟用 12</span>
+              <span class="badge text-bg-secondary">停用 3</span>
+            </div>
+          </div>
+
+          <div class="card-body">
+            <div class="row g-2 mb-3">
+              <div class="col-md-3">
+                <div class="input-group input-group-sm">
+                  <span class="input-group-text"><i class="bi bi-search"></i></span>
+                  <input type="text" class="form-control" placeholder="帳號 / 暱稱 / Email">
+                </div>
+              </div>
+              <div class="col-md-2"><select class="form-select form-select-sm"><option>全部角色</option><option>系統管理員</option><option>公司管理員</option><option>一般使用者</option></select></div>
+              <div class="col-md-2"><select class="form-select form-select-sm"><option>全部公司</option></select></div>
+              <div class="col-md-2"><select class="form-select form-select-sm"><option>全部狀態</option><option>啟用</option><option>停用</option></select></div>
+              <div class="col-md-3 text-end">
+                <button class="btn btn-primary btn-sm"><i class="bi bi-plus-lg me-1"></i>新增使用者</button>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-hover align-middle">
+                <thead>
+                  <tr>
+                    <th style="width:36px"><input class="form-check-input" type="checkbox"></th>
+                    <th>使用者</th>
+                    <th>角色</th>
+                    <th>所屬公司</th>
+                    <th>聯絡方式</th>
+                    <th class="text-center" style="width:90px">狀態</th>
+                    <th>最後登入</th>
+                    <th class="text-center" style="width:120px">操作</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td><input class="form-check-input" type="checkbox"></td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="avatar bg-primary">SA</span>
+                        <div>
+                          <div class="fw-semibold">s_admin</div>
+                          <div class="text-muted small">系統管理者</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="badge text-bg-primary">系統管理員</span></td>
+                    <td class="text-muted">—</td>
+                    <td class="small">
+                      <div><i class="bi bi-envelope me-1 text-muted"></i>sw@partner.com.tw</div>
+                      <div class="text-muted"><i class="bi bi-telephone me-1"></i>0912-345-678</div>
+                    </td>
+                    <td class="text-center">
+                      <div class="form-check form-switch d-inline-block">
+                        <input class="form-check-input" type="checkbox" checked>
+                      </div>
+                    </td>
+                    <td class="small text-muted">2026-08-06 09:12</td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#userModal" title="修改"><i class="bi bi-pencil"></i></button>
+                      <button class="btn btn-sm btn-outline-secondary" title="重設密碼"><i class="bi bi-key"></i></button>
+                      <button class="btn btn-sm btn-outline-danger" title="刪除"><i class="bi bi-trash"></i></button>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td><input class="form-check-input" type="checkbox"></td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="avatar bg-info">MH</span>
+                        <div>
+                          <div class="fw-semibold">miko_h</div>
+                          <div class="text-muted small">Miko</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="badge text-bg-info">公司管理員</span></td>
+                    <td>拍檔科技</td>
+                    <td class="small">
+                      <div><i class="bi bi-envelope me-1 text-muted"></i>miko.huang@partner.com.tw</div>
+                      <div class="text-muted"><i class="bi bi-telephone me-1"></i>—</div>
+                    </td>
+                    <td class="text-center">
+                      <div class="form-check form-switch d-inline-block">
+                        <input class="form-check-input" type="checkbox" checked>
+                      </div>
+                    </td>
+                    <td class="small text-muted">2026-08-05 16:44</td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#userModal"><i class="bi bi-pencil"></i></button>
+                      <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-key"></i></button>
+                      <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                    </td>
+                  </tr>
+
+                  <tr>
+                    <td><input class="form-check-input" type="checkbox"></td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="avatar bg-secondary">JG</span>
+                        <div>
+                          <div class="fw-semibold">Jason_go</div>
+                          <div class="text-muted small">Jason</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="badge text-bg-secondary">一般使用者</span></td>
+                    <td>GoDaddy 站</td>
+                    <td class="small">
+                      <div><i class="bi bi-envelope me-1 text-muted"></i>jason@partner.com.tw</div>
+                      <div class="text-muted"><i class="bi bi-telephone me-1"></i>—</div>
+                    </td>
+                    <td class="text-center">
+                      <div class="form-check form-switch d-inline-block">
+                        <input class="form-check-input" type="checkbox" checked>
+                      </div>
+                    </td>
+                    <td class="small text-muted">2026-08-04 23:31</td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#userModal"><i class="bi bi-pencil"></i></button>
+                      <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-key"></i></button>
+                      <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                    </td>
+                  </tr>
+
+                  <tr class="opacity-50">
+                    <td><input class="form-check-input" type="checkbox"></td>
+                    <td>
+                      <div class="d-flex align-items-center gap-2">
+                        <span class="avatar bg-secondary">TT</span>
+                        <div>
+                          <div class="fw-semibold">test_user</div>
+                          <div class="text-muted small">測試帳號</div>
+                        </div>
+                      </div>
+                    </td>
+                    <td><span class="badge text-bg-secondary">一般使用者</span></td>
+                    <td>拍檔科技</td>
+                    <td class="small">
+                      <div><i class="bi bi-envelope me-1 text-muted"></i>test@partner.com.tw</div>
+                      <div class="text-muted"><i class="bi bi-telephone me-1"></i>—</div>
+                    </td>
+                    <td class="text-center">
+                      <div class="form-check form-switch d-inline-block">
+                        <input class="form-check-input" type="checkbox">
+                      </div>
+                    </td>
+                    <td class="small text-muted">2025-11-02 10:07</td>
+                    <td class="text-center">
+                      <button class="btn btn-sm btn-outline-secondary" data-bs-toggle="modal" data-bs-target="#userModal"><i class="bi bi-pencil"></i></button>
+                      <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-key"></i></button>
+                      <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="text-muted small">顯示第 1 到 4 筆，共 15 筆</span>
+              <nav>
+                <ul class="pagination pagination-sm mb-0">
+                  <li class="page-item disabled"><a class="page-link" href="#">&laquo;</a></li>
+                  <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                  <li class="page-item"><a class="page-link" href="#">2</a></li>
+                  <li class="page-item"><a class="page-link" href="#">&raquo;</a></li>
+                </ul>
+              </nav>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <div class="float-end d-none d-sm-inline">CDM 2.0.0.0</div>
+    <strong>Partner Tech Corp.</strong>
+  </footer>
+</div>
+
+
+<!-- ══════════ 新增／編輯使用者 ══════════ -->
+<div class="modal fade" id="userModal" tabindex="-1">
+  <div class="modal-dialog modal-lg modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">編輯使用者</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+      </div>
+
+      <div class="modal-body">
+
+        <h6 class="text-uppercase text-muted small fw-bold mb-3">基本資料</h6>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label">帳號 <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" value="miko_h" readonly>
+            <div class="form-text">建立後不可修改</div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">暱稱 <span class="text-danger">*</span></label>
+            <input type="text" class="form-control" value="Miko">
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Email</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-envelope"></i></span>
+              <input type="email" class="form-control" value="miko.huang@partner.com.tw">
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">手機</label>
+            <div class="input-group">
+              <span class="input-group-text"><i class="bi bi-telephone"></i></span>
+              <input type="tel" class="form-control" placeholder="0912-345-678">
+            </div>
+          </div>
+        </div>
+
+        <h6 class="text-uppercase text-muted small fw-bold mb-3">密碼</h6>
+        <div class="row g-3 mb-2">
+          <div class="col-md-6">
+            <label class="form-label">初始密碼 <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <input type="password" class="form-control" value="········">
+              <button class="btn btn-outline-secondary" type="button"><i class="bi bi-eye"></i></button>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">確認密碼 <span class="text-danger">*</span></label>
+            <input type="password" class="form-control" value="········">
+          </div>
+        </div>
+        <div class="alert alert-light border pw-hint mb-4">
+          <i class="bi bi-info-circle me-1"></i>
+          密碼需 8 碼以上，且包含大寫、小寫、數字與特殊符號。
+        </div>
+
+        <h6 class="text-uppercase text-muted small fw-bold mb-3">權限與歸屬</h6>
+        <div class="row g-3 mb-4">
+          <div class="col-md-6">
+            <label class="form-label">角色 <span class="text-danger">*</span></label>
+            <select class="form-select">
+              <option>系統管理員</option>
+              <option selected>公司管理員</option>
+              <option>一般使用者</option>
+              <option>唯讀稽核</option>
+              <option>維運人員</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">所屬公司</label>
+            <select class="form-select">
+              <option selected>拍檔科技</option>
+              <option>GoDaddy 站</option>
+            </select>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">設備數量上限 <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <input type="number" class="form-control" value="200">
+              <span class="input-group-text">台</span>
+            </div>
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">儲存空間上限 <span class="text-danger">*</span></label>
+            <div class="input-group">
+              <input type="number" class="form-control" value="50">
+              <span class="input-group-text">GB</span>
+            </div>
+          </div>
+        </div>
+
+        <h6 class="text-uppercase text-muted small fw-bold mb-3">其他</h6>
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label">備註</label>
+            <textarea class="form-control" rows="2" maxlength="100"></textarea>
+            <div class="form-text text-end">0 / 100</div>
+          </div>
+          <div class="col-12">
+            <div class="form-check form-switch">
+              <input class="form-check-input" type="checkbox" id="swEnable" checked>
+              <label class="form-check-label" for="swEnable">啟用此帳號</label>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn btn-secondary" data-bs-dismiss="modal">取消</button>
+        <button class="btn btn-primary"><i class="bi bi-check-lg me-1"></i>儲存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/browser/overlayscrollbars.browser.es6.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.1.0/dist/js/adminlte.min.js"></script>
+</body>
+</html>
