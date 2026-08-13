@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CDM UI 原型 — 設備地理分布 (AdminLTE 4 + jsVectorMap)</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.1.0/dist/css/adminlte.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/styles/overlayscrollbars.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/jsvectormap@1.6.0/dist/css/jsvectormap.min.css">
+
+<style>
+  .proto-note { background:#fff3cd; border-left:4px solid #ffc107; padding:12px 16px; margin-bottom:1rem; font-size:14px; }
+  .proto-note code { background:rgba(0,0,0,.05); padding:1px 5px; border-radius:3px; }
+  #worldMap { height: 420px; }
+  #twMap    { height: 380px; }
+  .region-row { cursor:pointer; }
+  .region-row:hover { background:#f8f9fa; }
+  .dot { width:10px; height:10px; border-radius:50%; display:inline-block; }
+</style>
+</head>
+
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+
+  <nav class="app-header navbar navbar-expand bg-body">
+    <div class="container-fluid">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" data-lte-toggle="sidebar" href="#"><i class="bi bi-list"></i></a></li>
+      </ul>
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><a class="nav-link" href="adminlte4-preview.html"><i class="bi bi-house-door me-1"></i>首頁</a></li>
+        <li class="nav-item"><a class="nav-link" href="adminlte4-device.html"><i class="bi bi-hdd-stack me-1"></i>設備管理</a></li>
+        <li class="nav-item"><a class="nav-link" href="adminlte4-role.html"><i class="bi bi-shield-lock me-1"></i>角色管理</a></li>
+        <li class="nav-item"><a class="nav-link" href="adminlte4-user.html"><i class="bi bi-people me-1"></i>用戶管理</a></li>
+        <li class="nav-item"><a class="nav-link"><i class="bi bi-person-circle me-1"></i>s_admin</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <aside class="app-sidebar bg-body-secondary shadow" data-bs-theme="dark">
+    <div class="sidebar-brand"><a href="#" class="brand-link"><span class="brand-text fw-light">Partner Tech</span></a></div>
+    <div class="sidebar-wrapper">
+      <nav class="mt-2">
+        <ul class="nav sidebar-menu flex-column" data-lte-toggle="treeview" role="menu">
+          <li class="nav-item menu-open">
+            <a href="#" class="nav-link active"><i class="nav-icon bi bi-house-door"></i><p>首頁 <i class="nav-arrow bi bi-chevron-right"></i></p></a>
+            <ul class="nav nav-treeview">
+              <li class="nav-item"><a href="adminlte4-preview.html" class="nav-link"><i class="nav-icon bi bi-circle"></i><p>後台首頁</p></a></li>
+              <li class="nav-item"><a href="#" class="nav-link active"><i class="nav-icon bi bi-circle"></i><p>設備地理分布</p></a></li>
+            </ul>
+          </li>
+          <li class="nav-item"><a href="adminlte4-device.html" class="nav-link"><i class="nav-icon bi bi-hdd-stack"></i><p>設備管理</p></a></li>
+          <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon bi bi-display"></i><p>監控周邊</p></a></li>
+          <li class="nav-item"><a href="adminlte4-user.html" class="nav-link"><i class="nav-icon bi bi-people"></i><p>用戶管理</p></a></li>
+          <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon bi bi-journal-text"></i><p>日誌管理</p></a></li>
+          <li class="nav-item"><a href="#" class="nav-link"><i class="nav-icon bi bi-gear"></i><p>系統管理</p></a></li>
+        </ul>
+      </nav>
+    </div>
+  </aside>
+
+  <main class="app-main">
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-6"><h3 class="mb-0">設備地理分布</h3></div>
+          <div class="col-sm-6">
+            <ol class="breadcrumb float-sm-end">
+              <li class="breadcrumb-item"><a href="#">首頁</a></li>
+              <li class="breadcrumb-item active">設備地理分布</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="container-fluid">
+
+        <div class="proto-note">
+          <strong>靜態原型，資料是假的。</strong>
+          地圖顏色深淺代表設備數量，滑鼠移到國家／縣市上會顯示台數。
+          實際要接的資料來源是 <code>tms_devicelog.DeviceIp</code>（公網IP），
+          <strong>不是</strong> <code>tms_deviceinfo.DeviceIp</code>（那是內網IP，查不到地區）。
+        </div>
+
+        <!-- 統計列 -->
+        <div class="row g-3 mb-4">
+          <div class="col-lg-3 col-6">
+            <div class="small-box text-bg-primary">
+              <div class="inner"><h3>132</h3><p>設備總數</p></div>
+              <i class="small-box-icon bi bi-hdd-stack"></i>
+            </div>
+          </div>
+          <div class="col-lg-3 col-6">
+            <div class="small-box text-bg-success">
+              <div class="inner"><h3>7</h3><p>涵蓋國家／地區</p></div>
+              <i class="small-box-icon bi bi-globe-asia-australia"></i>
+            </div>
+          </div>
+          <div class="col-lg-3 col-6">
+            <div class="small-box text-bg-warning">
+              <div class="inner"><h3>18</h3><p>涵蓋縣市</p></div>
+              <i class="small-box-icon bi bi-geo-alt"></i>
+            </div>
+          </div>
+          <div class="col-lg-3 col-6">
+            <div class="small-box text-bg-secondary">
+              <div class="inner"><h3>9</h3><p>無法定位</p></div>
+              <i class="small-box-icon bi bi-question-circle"></i>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- 世界地圖 -->
+          <div class="col-lg-8">
+            <div class="card mb-4">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title">全球分布</h3>
+                <div class="btn-group btn-group-sm">
+                  <button class="btn btn-outline-secondary active">全部</button>
+                  <button class="btn btn-outline-secondary">僅上線</button>
+                  <button class="btn btn-outline-secondary">僅離線</button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div id="worldMap"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 排行 -->
+          <div class="col-lg-4">
+            <div class="card mb-4">
+              <div class="card-header"><h3 class="card-title">地區排行</h3></div>
+              <div class="card-body p-0">
+                <table class="table table-hover mb-0 align-middle">
+                  <thead>
+                    <tr><th class="ps-3">地區</th><th class="text-center">設備</th><th class="text-center">上線率</th></tr>
+                  </thead>
+                  <tbody>
+                    <tr class="region-row"><td class="ps-3">🇹🇼 台灣</td><td class="text-center fw-semibold">86</td><td class="text-center"><span class="text-success">92%</span></td></tr>
+                    <tr class="region-row"><td class="ps-3">🇺🇸 美國</td><td class="text-center fw-semibold">21</td><td class="text-center"><span class="text-warning">71%</span></td></tr>
+                    <tr class="region-row"><td class="ps-3">🇯🇵 日本</td><td class="text-center fw-semibold">9</td><td class="text-center"><span class="text-success">100%</span></td></tr>
+                    <tr class="region-row"><td class="ps-3">🇻🇳 越南</td><td class="text-center fw-semibold">6</td><td class="text-center"><span class="text-success">83%</span></td></tr>
+                    <tr class="region-row"><td class="ps-3">🇹🇭 泰國</td><td class="text-center fw-semibold">5</td><td class="text-center"><span class="text-danger">40%</span></td></tr>
+                    <tr class="region-row"><td class="ps-3">🇲🇾 馬來西亞</td><td class="text-center fw-semibold">3</td><td class="text-center"><span class="text-success">100%</span></td></tr>
+                    <tr class="region-row"><td class="ps-3">🇸🇬 新加坡</td><td class="text-center fw-semibold">2</td><td class="text-center"><span class="text-success">100%</span></td></tr>
+                    <tr class="region-row text-muted"><td class="ps-3">❓ 無法定位</td><td class="text-center fw-semibold">9</td><td class="text-center">—</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="row">
+          <!-- 台灣縣市 -->
+          <div class="col-lg-5">
+            <div class="card mb-4">
+              <div class="card-header"><h3 class="card-title">台灣縣市分布</h3></div>
+              <div class="card-body">
+                <div id="twMap"></div>
+                <p class="text-muted small mb-0 mt-2">
+                  <i class="bi bi-info-circle me-1"></i>
+                  縣市層級的地圖需要另外載入台灣的 GeoJSON，jsVectorMap 官方沒有內建。
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <!-- 縣市排行 -->
+          <div class="col-lg-7">
+            <div class="card mb-4">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title">台灣縣市明細</h3>
+                <input type="text" class="form-control form-control-sm" style="max-width:200px" placeholder="搜尋縣市">
+              </div>
+              <div class="card-body p-0">
+                <table class="table table-hover mb-0 align-middle">
+                  <thead>
+                    <tr>
+                      <th class="ps-3">縣市</th>
+                      <th class="text-center">設備</th>
+                      <th class="text-center">上線</th>
+                      <th class="text-center">離線</th>
+                      <th style="width:34%">佔比</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr class="region-row">
+                      <td class="ps-3">台北市</td><td class="text-center fw-semibold">24</td>
+                      <td class="text-center text-success">23</td><td class="text-center text-danger">1</td>
+                      <td><div class="progress" style="height:8px"><div class="progress-bar" style="width:28%"></div></div></td>
+                    </tr>
+                    <tr class="region-row">
+                      <td class="ps-3">新北市</td><td class="text-center fw-semibold">18</td>
+                      <td class="text-center text-success">17</td><td class="text-center text-danger">1</td>
+                      <td><div class="progress" style="height:8px"><div class="progress-bar" style="width:21%"></div></div></td>
+                    </tr>
+                    <tr class="region-row">
+                      <td class="ps-3">台中市</td><td class="text-center fw-semibold">14</td>
+                      <td class="text-center text-success">12</td><td class="text-center text-danger">2</td>
+                      <td><div class="progress" style="height:8px"><div class="progress-bar" style="width:16%"></div></div></td>
+                    </tr>
+                    <tr class="region-row">
+                      <td class="ps-3">高雄市</td><td class="text-center fw-semibold">11</td>
+                      <td class="text-center text-success">10</td><td class="text-center text-danger">1</td>
+                      <td><div class="progress" style="height:8px"><div class="progress-bar" style="width:13%"></div></div></td>
+                    </tr>
+                    <tr class="region-row">
+                      <td class="ps-3">桃園市</td><td class="text-center fw-semibold">8</td>
+                      <td class="text-center text-success">8</td><td class="text-center text-muted">0</td>
+                      <td><div class="progress" style="height:8px"><div class="progress-bar" style="width:9%"></div></div></td>
+                    </tr>
+                    <tr class="region-row">
+                      <td class="ps-3">台南市</td><td class="text-center fw-semibold">6</td>
+                      <td class="text-center text-success">4</td><td class="text-center text-danger">2</td>
+                      <td><div class="progress" style="height:8px"><div class="progress-bar" style="width:7%"></div></div></td>
+                    </tr>
+                    <tr class="region-row">
+                      <td class="ps-3">新竹市</td><td class="text-center fw-semibold">5</td>
+                      <td class="text-center text-success">5</td><td class="text-center text-muted">0</td>
+                      <td><div class="progress" style="height:8px"><div class="progress-bar" style="width:6%"></div></div></td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <div class="float-end d-none d-sm-inline">CDM 2.0.0.0</div>
+    <strong>Partner Tech Corp.</strong>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/browser/overlayscrollbars.browser.es6.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.1.0/dist/js/adminlte.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.6.0/dist/jsvectormap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsvectormap@1.6.0/dist/maps/world.js"></script>
+
+<script>
+  // 實際專案會由後端提供：SELECT 國家代碼, COUNT(*) ... GROUP BY 國家代碼
+  const deviceByCountry = { TW: 86, US: 21, JP: 9, VN: 6, TH: 5, MY: 3, SG: 2 };
+
+  new jsVectorMap({
+    selector: '#worldMap',
+    map: 'world',
+    zoomOnScroll: true,
+    regionStyle: {
+      initial:  { fill: '#e9ecef', stroke: '#fff', strokeWidth: .4 },
+      hover:    { fill: '#adb5bd' }
+    },
+    series: {
+      regions: [{
+        attribute: 'fill',
+        scale: ['#cfe2ff', '#0d6efd'],   // 淺 → 深，代表台數少 → 多
+        values: deviceByCountry,
+        normalizeFunction: 'polynomial'
+      }]
+    },
+    onRegionTooltipShow(event, tooltip, code) {
+      const n = deviceByCountry[code];
+      tooltip.text(tooltip.text() + (n ? `：${n} 台` : '：無設備'), true);
+    },
+    markers: [
+      { name: '台北', coords: [25.03, 121.56] },
+      { name: '洛杉磯', coords: [34.05, -118.24] },
+      { name: '東京', coords: [35.68, 139.69] }
+    ],
+    markerStyle: {
+      initial: { fill: '#dc3545', stroke: '#fff', strokeWidth: 1.5, r: 5 }
+    }
+  });
+
+  // 台灣縣市地圖需要另外的 GeoJSON，這裡用佔位說明
+  document.getElementById('twMap').innerHTML =
+    '<div class="d-flex flex-column align-items-center justify-content-center h-100 text-muted border rounded">' +
+    '<i class="bi bi-map" style="font-size:42px"></i>' +
+    '<div class="mt-2">台灣縣市地圖（需另外載入 GeoJSON）</div>' +
+    '</div>';
+</script>
+</body>
+</html>
