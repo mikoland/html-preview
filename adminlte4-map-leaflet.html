@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CDM UI原型 — 設備位置地圖(AdminLTE 4 + Leaflet + OpenStreetMap)</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/admin-lte@4.1.0/dist/css/adminlte.min.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+<style>
+  .proto-note { background:#fff3cd; border-left:4px solid #ffc107; padding:12px 16px; margin-bottom:1rem; font-size:14px; }
+  .proto-note code { background:rgba(0,0,0,.05); padding:1px 5px; border-radius:3px; }
+
+  #deviceMap { height: 560px; border-radius:6px; }
+
+  .dev-row { cursor:pointer; }
+  .dev-row:hover { background:#f8f9fa; }
+  .dev-row.active { background:#e7f1ff; }
+
+  .dot { width:10px; height:10px; border-radius:50%; display:inline-block; vertical-align:middle; }
+  .dot-on  { background:#198754; }
+  .dot-off { background:#dc3545; }
+  .dot-warn{ background:#fd7e14; }
+
+  /* 自訂的圖釘，用CSS畫，不必額外載入圖檔 */
+  .pin { width:18px; height:18px; border-radius:50% 50% 50% 0; transform:rotate(-45deg);
+         border:2px solid #fff; box-shadow:0 1px 4px rgba(0,0,0,.4); }
+  .pin-on  { background:#198754; }
+  .pin-off { background:#dc3545; }
+  .pin-warn{ background:#fd7e14; }
+
+  .leaflet-popup-content { font-size:13px; line-height:1.6; margin:10px 12px; }
+  .leaflet-popup-content .sn { font-family:ui-monospace,Consolas,monospace; }
+
+  .legend { font-size:13px; }
+  .legend .dot { margin-right:6px; }
+</style>
+</head>
+
+<body class="layout-fixed sidebar-expand-lg bg-body-tertiary">
+<div class="app-wrapper">
+
+  <nav class="app-header navbar navbar-expand bg-body">
+    <div class="container-fluid">
+      <ul class="navbar-nav">
+        <li class="nav-item"><a class="nav-link" data-lte-toggle="sidebar" href="#"><i class="bi bi-list"></i></a></li>
+        <li class="nav-item d-none d-md-block"><span class="nav-link">設備位置地圖</span></li>
+      </ul>
+      <ul class="navbar-nav ms-auto">
+        <li class="nav-item"><span class="nav-link text-muted small">CDM UI原型</span></li>
+      </ul>
+    </div>
+  </nav>
+
+  <main class="app-main">
+    <div class="app-content-header">
+      <div class="container-fluid">
+        <div class="row">
+          <div class="col-sm-6"><h3 class="mb-0">設備位置地圖</h3></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-content">
+      <div class="container-fluid">
+
+        <div class="proto-note">
+          <strong>這是原型，不是可以直接上線的功能。</strong><br>
+          地圖本身是真的——用<code>Leaflet</code>顯示<code>OpenStreetMap</code>的圖資，可以縮放到街道等級，不需要API key、不需要註冊、沒有費用。
+          <br>
+          但<strong>圖上的12台設備座標是假資料</strong>。目前<code>tms_device</code>沒有任何經緯度或地址欄位，
+          要真的做出這個畫面，必須先加上<code>Address</code> / <code>Latitude</code> / <code>Longitude</code>，
+          並提供讓管理者填門市地址、轉換成座標的流程。
+          <br>
+          用IP反查位置無法取代——精度只到城市級，而且設備在企業內網後面時查到的是對外出口的IP，位置會完全錯誤。
+        </div>
+
+        <div class="row">
+
+          <!-- 地圖 -->
+          <div class="col-lg-8">
+            <div class="card mb-4">
+              <div class="card-header d-flex justify-content-between align-items-center">
+                <h3 class="card-title">門市分布</h3>
+                <div class="btn-group btn-group-sm" role="group">
+                  <button type="button" class="btn btn-outline-secondary active" data-filter="all">全部</button>
+                  <button type="button" class="btn btn-outline-secondary" data-filter="on">僅上線</button>
+                  <button type="button" class="btn btn-outline-secondary" data-filter="off">僅離線</button>
+                </div>
+              </div>
+              <div class="card-body">
+                <div id="deviceMap"></div>
+                <div class="legend mt-3 d-flex gap-4">
+                  <span><span class="dot dot-on"></span>上線</span>
+                  <span><span class="dot dot-off"></span>離線</span>
+                  <span><span class="dot dot-warn"></span>異常</span>
+                  <span class="text-muted ms-auto"><i class="bi bi-arrows-fullscreen me-1"></i>滾輪縮放，可放大到街道與門牌</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 設備清單 -->
+          <div class="col-lg-4">
+            <div class="card mb-4">
+              <div class="card-header"><h3 class="card-title">設備清單</h3></div>
+              <div class="card-body p-0">
+                <table class="table table-hover mb-0 align-middle" style="font-size:13px;">
+                  <thead>
+                    <tr>
+                      <th class="ps-3">門市</th>
+                      <th>SN</th>
+                      <th class="text-center">狀態</th>
+                    </tr>
+                  </thead>
+                  <tbody id="devList"></tbody>
+                </table>
+              </div>
+              <div class="card-footer text-muted small">
+                點清單任一列，地圖會移到該設備的位置。
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header"><h3 class="card-title">與現有向量地圖的差別</h3></div>
+              <div class="card-body small">
+                <p class="mb-2">
+                  <strong>向量地圖</strong>(<code>jsVectorMap</code>，即另一份原型使用的)畫的是國家或行政區的輪廓多邊形，
+                  資料裡沒有道路，<strong>天生就放大不到街道</strong>。適合做「哪些地區有幾台設備」的統計。
+                </p>
+                <p class="mb-0">
+                  <strong>圖磚地圖</strong>(本頁使用的)是預先產生好的各縮放層級圖片，放大後會出現街道、建築物與店家。
+                  適合做「這台設備裝在哪一間門市」的定位。
+                </p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="app-footer">
+    <div class="float-end d-none d-sm-inline">CDM UI原型</div>
+    <strong>Leaflet 1.9.4 + OpenStreetMap</strong>
+  </footer>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/overlayscrollbars@2.10.1/browser/overlayscrollbars.browser.es6.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/admin-lte@4.1.0/dist/js/adminlte.min.js"></script>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+// ---- 假資料。真實情況要從資料庫讀，且tms_device目前沒有這些欄位 ----
+const devices = [
+  { sn:'Q80019C00958', store:'台北信義門市',   lat:25.0339, lng:121.5645, status:'on',   last:'2026-08-19 14:32' },
+  { sn:'Q80019C00961', store:'台北車站門市',   lat:25.0478, lng:121.5170, status:'on',   last:'2026-08-19 14:31' },
+  { sn:'Q80019C00974', store:'西門町門市',     lat:25.0421, lng:121.5074, status:'off',  last:'2026-08-18 09:15' },
+  { sn:'Q80019C01002', store:'板橋車站門市',   lat:25.0143, lng:121.4635, status:'on',   last:'2026-08-19 14:33' },
+  { sn:'Q80019C01015', store:'桃園中正門市',   lat:24.9892, lng:121.3140, status:'warn', last:'2026-08-19 13:58' },
+  { sn:'Q80019C01033', store:'新竹車站門市',   lat:24.8016, lng:120.9715, status:'on',   last:'2026-08-19 14:30' },
+  { sn:'Q80019C01047', store:'台中車站門市',   lat:24.1369, lng:120.6869, status:'on',   last:'2026-08-19 14:29' },
+  { sn:'Q80019C01052', store:'逢甲夜市門市',   lat:24.1795, lng:120.6465, status:'off',  last:'2026-08-17 22:04' },
+  { sn:'Q80019C01068', store:'嘉義文化路門市', lat:23.4790, lng:120.4491, status:'on',   last:'2026-08-19 14:28' },
+  { sn:'Q80019C01079', store:'台南車站門市',   lat:22.9971, lng:120.2126, status:'on',   last:'2026-08-19 14:32' },
+  { sn:'Q80019C01085', store:'高雄美麗島門市', lat:22.6314, lng:120.3020, status:'warn', last:'2026-08-19 14:10' },
+  { sn:'Q80019C01091', store:'高雄夢時代門市', lat:22.5955, lng:120.3065, status:'on',   last:'2026-08-19 14:33' }
+];
+
+const label = { on:'上線', off:'離線', warn:'異常' };
+
+// ---- 建立地圖。setView的參數是[緯度, 經度]與縮放等級 ----
+const map = L.map('deviceMap').setView([23.9, 120.9], 8);
+
+// ---- 圖資來源。要換成別家的圖磚只需要改這一行網址 ----
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19,
+  attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+}).addTo(map);
+
+const markers = {};
+
+function makeIcon(status) {
+  return L.divIcon({
+    className: '',
+    html: '<div class="pin pin-' + status + '"></div>',
+    iconSize: [18, 18],
+    iconAnchor: [9, 18],
+    popupAnchor: [0, -16]
+  });
+}
+
+devices.forEach(function (d) {
+  const m = L.marker([d.lat, d.lng], { icon: makeIcon(d.status) })
+    .addTo(map)
+    .bindPopup(
+      '<strong>' + d.store + '</strong><br>' +
+      '<span class="sn">' + d.sn + '</span><br>' +
+      '狀態：<span class="dot dot-' + d.status + '"></span> ' + label[d.status] + '<br>' +
+      '最後上線：' + d.last
+    );
+  markers[d.sn] = m;
+});
+
+// ---- 右側清單 ----
+const tbody = document.getElementById('devList');
+devices.forEach(function (d) {
+  const tr = document.createElement('tr');
+  tr.className = 'dev-row';
+  tr.dataset.sn = d.sn;
+  tr.dataset.status = d.status;
+  tr.innerHTML =
+    '<td class="ps-3">' + d.store + '</td>' +
+    '<td style="font-family:ui-monospace,Consolas,monospace;font-size:12px;">' + d.sn + '</td>' +
+    '<td class="text-center"><span class="dot dot-' + d.status + '"></span></td>';
+  tr.addEventListener('click', function () {
+    document.querySelectorAll('.dev-row').forEach(function (r) { r.classList.remove('active'); });
+    tr.classList.add('active');
+    map.flyTo([d.lat, d.lng], 17, { duration: 0.8 });
+    markers[d.sn].openPopup();
+  });
+  tbody.appendChild(tr);
+});
+
+// ---- 上線/離線篩選 ----
+document.querySelectorAll('[data-filter]').forEach(function (btn) {
+  btn.addEventListener('click', function () {
+    document.querySelectorAll('[data-filter]').forEach(function (b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    const f = btn.dataset.filter;
+    devices.forEach(function (d) {
+      const show = (f === 'all') || (f === 'on' && d.status !== 'off') || (f === 'off' && d.status === 'off');
+      if (show) { markers[d.sn].addTo(map); } else { map.removeLayer(markers[d.sn]); }
+    });
+    document.querySelectorAll('.dev-row').forEach(function (r) {
+      const s = r.dataset.status;
+      const show = (f === 'all') || (f === 'on' && s !== 'off') || (f === 'off' && s === 'off');
+      r.style.display = show ? '' : 'none';
+    });
+  });
+});
+</script>
+</body>
+</html>
