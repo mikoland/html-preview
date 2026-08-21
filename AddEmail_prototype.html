@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Partner SMTP — 郵件設定畫面原型</title>
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@3.3.7/dist/css/bootstrap.min.css">
+
+<style>
+  body { background:#ecf0f5; font-family:"Microsoft JhengHei","Helvetica Neue",Arial,sans-serif; padding:24px; }
+  .wrap { max-width:1180px; margin:0 auto; }
+
+  .proto-note { background:#fff3cd; border-left:4px solid #ffc107; padding:12px 16px; margin-bottom:20px; font-size:14px; line-height:1.7; }
+  .proto-note code { background:rgba(0,0,0,.06); color:#c7254e; padding:1px 5px; border-radius:3px; }
+
+  /* 模擬layer彈出視窗的外框，實際頁面是開在對話框裡的 */
+  .layer-box { background:#fff; border:1px solid #ccc; box-shadow:0 2px 12px rgba(0,0,0,.15); }
+  .layer-title { background:#f8f8f8; border-bottom:1px solid #ddd; padding:9px 15px; font-size:14px; color:#333; }
+  .layer-body { padding:15px; }
+
+  .c-red { color:#dd4b39; margin-right:2px; }
+  .table > tbody > tr > td { padding:14px 12px; }
+  .form-group { margin-bottom:0; }
+  .control-label { padding-top:7px; }
+
+  /* 新增的部分用這個標記，方便對照 */
+  .is-new { background:#eaf6ff; }
+  .new-tag { display:inline-block; background:#3c8dbc; color:#fff; font-size:11px; padding:1px 6px; border-radius:2px; margin-left:6px; vertical-align:2px; }
+
+  .locked input, .locked select { background:#eee !important; color:#999; cursor:not-allowed; }
+  .locked .control-label { color:#999; }
+  .hint { color:#888; font-size:12px; margin-top:6px; }
+
+  .cmp td, .cmp th { font-size:13px; vertical-align:middle !important; }
+  .cmp th { background:#f5f5f5; }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="proto-note">
+    <strong>這是畫面原型，用現在的Bootstrap 3樣式畫的</strong>，所以你看到的差異就只有Partner SMTP這個功能，不會跟AdminLTE升級混在一起。
+    對照的是<code>Views/DeviceNotification/AddEmail.cshtml</code>，實際上這頁是開在layer對話框裡。
+    <br>
+    <span style="background:#eaf6ff;padding:0 4px;">淺藍色</span>的列是這次新增或修改的，其餘維持原樣。切換上面的選項可以看兩種模式的差別。
+  </div>
+
+  <div class="row">
+    <div class="col-md-7">
+
+      <div class="layer-box">
+        <div class="layer-title">郵件設定</div>
+        <div class="layer-body">
+
+          <form class="form-horizontal" onsubmit="return false">
+            <table class="table table-bordered">
+
+              <!-- 新增：模式選擇 -->
+              <tr class="is-new">
+                <td>
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label"><span class="c-red">*</span>寄信伺服器<span class="new-tag">新增</span></label>
+                    <div class="col-sm-9">
+                      <select class="form-control" id="modeSelect">
+                        <option value="partner" selected>使用Partner預設伺服器</option>
+                        <option value="custom">自行設定SMTP伺服器</option>
+                      </select>
+                      <div class="hint" id="modeHint"></div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="smtp-field">
+                <td>
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label"><span class="c-red">*</span>SMTP 伺服器</label>
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control" value="smtp.example.com">
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="smtp-field">
+                <td>
+                  <div class="form-group">
+                    <label class="control-label col-sm-3"><span class="c-red">*</span>SMTP Port</label>
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control" value="587">
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="smtp-field">
+                <td>
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label"><span class="c-red">*</span>SMTP 使用者</label>
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control" value="notify@example.com">
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="smtp-field is-new">
+                <td>
+                  <div class="form-group">
+                    <label class="control-label col-sm-3"><span class="c-red">*</span>SMTP 密碼<span class="new-tag">修改</span></label>
+                    <div class="col-sm-9">
+                      <input type="password" class="form-control" value="" placeholder="留空表示不變更">
+                      <div class="hint">
+                        現在的程式會把資料庫裡存的密碼render進頁面原始碼(<code>AddEmail.cshtml:118</code>)，
+                        任何開得了這頁的人檢視原始碼就看得到。改成不回填，留白代表不變更。
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr class="smtp-field">
+                <td>
+                  <div class="form-group">
+                    <label class="col-sm-3 control-label"><span class="c-red">*</span>Secure</label>
+                    <div class="col-sm-9" style="padding-top:8px;">
+                      <input type="checkbox" checked>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="form-group">
+                    <label class="control-label col-sm-3"><span class="c-red">*</span>寄件人信箱</label>
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control" value="notify@example.com" id="senderAddr">
+                      <div class="hint" id="senderHint" style="display:none;">
+                        待確認：GoDaddy的relay通常要求<code>From</code>與認證帳號同網域。若是如此，
+                        Partner模式下這一欄要固定為Partner的地址，使用者填的改放<code>Reply-To</code>。
+                        <strong>需要實測一封才能確定。</strong>
+                      </div>
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+              <tr>
+                <td>
+                  <div class="form-group">
+                    <label class="control-label col-sm-3"><span class="c-red">*</span>寄件人</label>
+                    <div class="col-sm-9">
+                      <input type="text" class="form-control" value="CDM 通知">
+                    </div>
+                  </div>
+                </td>
+              </tr>
+
+            </table>
+
+            <div class="box-footer" style="overflow:hidden;">
+              <div class="pull-right">
+                <button type="button" class="btn btn-primary">送出</button>
+              </div>
+              <div>
+                <button type="button" class="btn btn-success">寄送測試郵件</button>
+                <span class="hint" style="margin-left:8px;">兩種模式都要能用</span>
+              </div>
+            </div>
+          </form>
+
+        </div>
+      </div>
+
+    </div>
+
+    <div class="col-md-5">
+
+      <div class="panel panel-default">
+        <div class="panel-heading">改了哪些</div>
+        <table class="table table-bordered cmp" style="margin-bottom:0;">
+          <thead>
+            <tr><th style="width:34%;">項目</th><th>說明</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>新增模式選擇</td>
+              <td>對應<code>sys_email.use_partner_smtp</code>這個新欄位。判斷一律看它，不看<code>smtp_server</code>是不是空的。</td>
+            </tr>
+            <tr>
+              <td>下拉選單<br>預設Partner</td>
+              <td>選Partner時，下方SMTP欄位<strong>整組變灰、不能編輯</strong>；改選自行設定就全部打開讓使用者填。<strong>切換時不清空既有值</strong>，隨時可以切回去。</td>
+            </tr>
+            <tr>
+              <td>密碼不再回填</td>
+              <td>順便修掉既有的資安問題。留白代表不變更。<br><strong>Partner的密碼絕對不能走這條路。</strong></td>
+            </tr>
+            <tr>
+              <td>收件者與時段</td>
+              <td>不在這一頁，在「即時通知」的設定對話框裡，兩種模式都保留。</td>
+            </tr>
+            <tr>
+              <td>測試寄信</td>
+              <td>兩種模式都要能用。</td>
+            </tr>
+            <tr>
+              <td>三語系</td>
+              <td>新增的文字要補en-US / zh-CN / zh-TW。</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="panel panel-default">
+        <div class="panel-heading">這一頁不能解決的事</div>
+        <div class="panel-body" style="font-size:13px;line-height:1.8;">
+          Partner SMTP解決的是「<strong>用什麼伺服器寄</strong>」，不解決「<strong>寄給誰</strong>」。
+          <br><br>
+          <code>receiver_address</code>是收件者信箱，在另一個對話框裡，還是得使用者填。
+          所以改完之後，使用者遇到的障礙會從「沒設SMTP」變成「沒填收件者」。
+          <br><br>
+          相關的提示文字與隱藏邏輯要一起改，細節見需求文件。
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jquery@3.7.1/dist/jquery.min.js"></script>
+<script>
+function applyMode(mode) {
+  var partner = (mode === 'partner');
+
+  document.querySelectorAll('.smtp-field').forEach(function (tr) {
+    tr.classList.toggle('locked', partner);
+    tr.querySelectorAll('input').forEach(function (el) { el.disabled = partner; });
+  });
+
+  document.getElementById('modeHint').innerHTML = partner
+    ? '使用系統設定好的Partner寄信伺服器，下面的SMTP欄位不需要填。原本填過的值會保留，隨時可以切回自訂。'
+    : '使用自己的寄信伺服器，下面的SMTP欄位都要填完整。<strong>沒填完不會自動改用Partner的</strong>，會擋下來提示。';
+
+  document.getElementById('senderHint').style.display = partner ? 'block' : 'none';
+}
+
+document.getElementById('modeSelect').addEventListener('change', function () {
+  applyMode(this.value);
+});
+
+applyMode('partner');
+</script>
+</body>
+</html>
