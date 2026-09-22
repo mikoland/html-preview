@@ -1,0 +1,83 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>CDM升級圖表預覽</title><style>body{font-family:"Microsoft JhengHei",sans-serif;background:#fff;color:#222;margin:24px;max-width:1600px}h1{font-size:22px}h2{font-size:18px;margin-top:40px;border-bottom:1px solid #ccc;padding-bottom:6px}section{overflow-x:auto}</style></head><body><h1>CDM後台升級評估：圖表預覽</h1><p>內容取自docs/frontend-upgrade-assessment.md(需連網載入Mermaid)。</p><h2>一、階段流程(依側邊選單分批，第六節)</h2><section><pre class="mermaid">flowchart TD
+    P0["0. 前置&lt;br/>CSP修正併入master"] --> P1["1. 技術試作&lt;br/>bootstrap-table&lt;br/>日期選擇器、樹狀選單&lt;br/>AdminLTE 4.9.1"]
+    P1 --> G1{"決策關卡"}
+    G1 -->|繼續| P2["2. 骨架與共用層"]
+    G1 -.->|暫停| PA["維持方案A"]
+    P2 --> M1["3-1 首頁"]
+    M1 --> M2["3-2 設備管理"]
+    M2 --> M3["3-3 監控周邊"]
+    M3 --> M4["3-4 任務管理"]
+    M4 --> M5["3-5 群組管理"]
+    M5 --> M6["3-6 Kiosk設備"]
+    M6 --> M7["3-7 用戶管理"]
+    M7 --> M8["3-8 日誌管理"]
+    M8 --> M9["3-9 系統管理"]
+    M9 --> P4["4. 收尾與全站回歸"]
+    P4 --> P5["IIS部署測試"]
+    P5 --> QC["QC驗收"]
+    QC -.->|回饋修正| P4
+    QC -->|通過| REL["併入master&lt;br/>發行大版號"]
+</pre></section><h2>二、每批作業流程(6.1節)</h2><section><pre class="mermaid">flowchart LR
+    B1["指令碼替換class&lt;br/>(約六成)"] --> B2["人工調整版面"]
+    B2 --> B3["自動化掃描&lt;br/>CSP／JS例外／Vue掛載"]
+    B3 --> B4["更新E2E選擇器&lt;br/>並執行"]
+    B4 --> B5["截圖交人員驗收"]
+    B5 -.->|需修正| B2
+    B5 -->|通過| B6["開MR&lt;br/>Reviewer審查"]
+    B6 --> B7["併入整合分支"]
+</pre></section><h2>三、時程圖(7.3節)</h2><section><pre class="mermaid">%%{init: {"themeVariables": {"taskBkgColor": "#dbe4ff", "taskBorderColor": "#5c7cfa", "taskTextColor": "#212529", "taskTextDarkColor": "#212529"}}}%%
+gantt
+    title CDM後台升級時程(Bootstrap 5.3.8＋AdminLTE 4.9.1)
+    dateFormat YYYY-MM-DD
+    axisFormat %m/%d
+    excludes weekends, 2026-10-09
+
+    section Claude實作
+    0.前置             :c0, 2026-10-05, 1d
+    1.技術試作         :c1, after c0, 2d
+    決策關卡           :milestone, m1, after h1, 0d
+    2.骨架與共用層     :c2, after m1, 3d
+    3-1首頁            :c31, after c2, 1d
+    3-2設備管理        :c32, after c31, 4d
+    3-3監控周邊        :c33, after c32, 1d
+    3-4任務管理        :c34, after c33, 2d
+    3-5群組管理        :c35, after c34, 1d
+    3-6Kiosk設備       :c36, after c35, 1d
+    3-7用戶管理        :c37, after c36, 2d
+    3-8日誌管理        :c38, after c37, 1d
+    3-9系統管理        :c39, after c38, 1d
+    4.收尾與全站回歸   :c4, after c39, 3d
+    IIS部署測試        :c5, after c4, 1d
+    QC回饋修正與複驗   :c6, after q1, 5d
+    併入master         :milestone, m2, after c6, 0d
+
+    section 人員驗收
+    試作結果決策       :h1, after c1, 1d
+    骨架驗收           :h2, after c2, 1d
+    3-1驗收            :h31, after c31, 1d
+    3-2實際操作驗收    :h32, after c32, 1d
+    3-3驗收            :h33, after c33, 1d
+    3-4驗收            :h34, after c34, 1d
+    3-5驗收            :h35, after c35, 1d
+    3-6驗收            :h36, after c36, 1d
+    3-7驗收            :h37, after c37, 1d
+    3-8驗收            :h38, after c38, 1d
+    3-9驗收            :h39, after c39, 1d
+    全站人工操作       :h4, after c5, 2d
+
+    section MR審查
+    CSP修正MR          :r0, 2026-10-05, 1d
+    骨架MR             :r2, after h2, 2d
+    3-1 MR             :r31, after h31, 2d
+    3-2 MR             :r32, after h32, 2d
+    3-3 MR             :r33, after h33, 2d
+    3-4 MR             :r34, after h34, 2d
+    3-5 MR             :r35, after h35, 2d
+    3-6 MR             :r36, after h36, 2d
+    3-7 MR             :r37, after h37, 2d
+    3-8 MR             :r38, after h38, 2d
+    3-9 MR             :r39, after h39, 2d
+
+    section QC
+    QC測試(待評估)     :q1, after h4, 5d
+</pre></section><div id="st">pending</div><script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";mermaid.initialize({startOnLoad:false,gantt:{useWidth:1500}});try{await mermaid.run();document.getElementById("st").textContent="OK "+document.querySelectorAll("section svg").length}catch(e){document.getElementById("st").textContent="ERR "+e.message}</script></body></html>
