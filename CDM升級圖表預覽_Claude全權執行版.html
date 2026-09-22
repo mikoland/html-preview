@@ -1,0 +1,89 @@
+<!doctype html><html lang="zh-Hant"><head><meta charset="utf-8"><title>CDM升級圖表預覽(Claude全權執行版)</title><style>body{font-family:"Microsoft JhengHei",sans-serif;background:#fff;color:#222;margin:24px;max-width:1600px}h1{font-size:22px}h2{font-size:18px;margin-top:40px;border-bottom:1px solid #ccc;padding-bottom:6px}section{overflow-x:auto}</style></head><body><h1>CDM後台升級評估：圖表預覽(Claude全權執行版)</h1><p>內容取自docs/frontend-upgrade-assessment.md(需連網載入Mermaid)。</p><h2>階段流程</h2><section><pre class="mermaid">flowchart TD
+    P0["0. 前置&lt;br/>CSP修正併入master"] --> P1["1. 技術試作&lt;br/>bootstrap-table&lt;br/>日期選擇器、樹狀選單&lt;br/>AdminLTE 4.9.1"]
+    P1 --> G1{"決策關卡"}
+    G1 -->|繼續| P2["2. 骨架與共用層"]
+    G1 -.->|暫停| PA["維持方案A"]
+    P2 --> M1["3-1 首頁"]
+    M1 --> M2["3-2 設備管理"]
+    M2 --> M3["3-3 監控周邊"]
+    M3 --> M4["3-4 任務管理"]
+    M4 --> M5["3-5 群組管理"]
+    M5 --> M6["3-6 Kiosk設備"]
+    M6 --> M7["3-7 用戶管理"]
+    M7 --> M8["3-8 日誌管理"]
+    M8 --> M9["3-9 系統管理"]
+    M9 --> P4["4. 收尾與全站回歸"]
+    P4 --> P5["IIS部署測試"]
+    P5 --> QC["QC驗收"]
+    QC -.->|回饋修正| P4
+    QC -->|通過| REL["併入master&lt;br/>發行大版號"]
+</pre></section><h2>6.1 每批的作法與驗證</h2><section><pre class="mermaid">flowchart LR
+    B1["指令碼替換class&lt;br/>(約六成)"] --> B2["人工調整版面"]
+    B2 --> B3["自動化掃描&lt;br/>CSP／JS例外／Vue掛載"]
+    B3 --> B4["更新E2E選擇器&lt;br/>並執行"]
+    B4 --> B5["截圖交人員驗收"]
+    B5 -.->|需修正| B2
+    B5 -->|通過| B6["開MR&lt;br/>Reviewer審查"]
+    B6 --> B7["併入整合分支"]
+</pre></section><h2>7.2 流程圖</h2><section><pre class="mermaid">flowchart TD
+    B0["建立整合分支&lt;br/>(從CSP修正分支)"] --> T1["1. 技術試作&lt;br/>以設備管理頁面驗證&lt;br/>bootstrap-table、日期選擇器、樹狀選單"]
+    T1 --> G1{"試作可行？"}
+    G1 -->|是| T2["2. 骨架與共用層"]
+    G1 -.->|否| U0["暫停並回報&lt;br/>由人員決定"]
+    T2 --> M1["3-1 首頁"]
+    M1 --> M2["3-2 設備管理"]
+    M2 --> M3["3-3 監控周邊"]
+    M3 --> M4["3-4 任務管理"]
+    M4 --> M5["3-5 群組管理"]
+    M5 --> M6["3-6 Kiosk設備"]
+    M6 --> M7["3-7 用戶管理"]
+    M7 --> M8["3-8 日誌管理"]
+    M8 --> M9["3-9 系統管理"]
+    M9 --> T4["4. 收尾與全站自動回歸&lt;br/>截圖對照報告"]
+    T4 --> T5["IIS部署測試"]
+    T5 --> U1["人員總驗收"]
+    U1 -.->|需修正| T4
+    U1 -->|通過| MR["開MR&lt;br/>Reviewer審查"]
+    CSP["CSP修正MR&lt;br/>併入master"] -.->|須先完成| MR
+    MR --> QC["QC測試"]
+    QC -.->|回饋| FX["修正與複驗"]
+    FX -.-> QC
+    QC -->|通過| REL["併入master&lt;br/>發行大版號"]
+</pre></section><h2>7.2 流程圖</h2><section><pre class="mermaid">flowchart LR
+    B1["指令碼替換class&lt;br/>(約六成)"] --> B2["逐檔調整版面"]
+    B2 --> B3["自動化掃描&lt;br/>CSP／JS例外／Vue掛載"]
+    B3 --> B4["更新E2E選擇器&lt;br/>並執行"]
+    B4 --> B5["新舊截圖對照&lt;br/>自我檢查"]
+    B5 -.->|有差異| B2
+    B5 -->|通過| B6["commit到整合分支"]
+    B6 --> B7["下一批"]
+</pre></section><h2>7.4 時程圖</h2><section><pre class="mermaid">%%{init: {"themeVariables": {"taskBkgColor": "#dbe4ff", "taskBorderColor": "#5c7cfa", "taskTextColor": "#212529", "taskTextDarkColor": "#212529"}}}%%
+gantt
+    title CDM後台升級時程(Claude全權執行)
+    dateFormat YYYY-MM-DD
+    axisFormat %m/%d
+    excludes weekends, 2026-09-25, 2026-09-28, 2026-10-09, 2026-10-26
+    todayMarker off
+
+    section Claude實作
+    1.技術試作         :c1, 2026-09-23, 1d
+    2.骨架與共用層     :c2, after c1, 2d
+    3-1首頁、3-2設備管理     :c3a, after c2, 3d
+    3-3監控周邊～3-5群組管理 :c3b, after c3a, 2d
+    3-6Kiosk～3-9系統管理    :c3c, after c3b, 2d
+    4.收尾與全站回歸   :c4, after c3c, 2d
+    IIS部署測試        :c5, after c4, 1d
+    QC回饋修正         :c6, after r1, 5d
+    複驗               :c7, after c6, 1d
+    併入master         :milestone, m2, after c7, 0d
+
+    section 人員
+    總驗收             :h1, after c5, 2d
+
+    section MR審查
+    CSP修正MR          :r0, 2026-09-23, 3d
+    整合分支MR         :r1, after h1, 3d
+
+    section QC
+    QC測試(待評估)     :q1, after r1, 5d
+</pre></section><div id="st">pending</div><script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs";mermaid.initialize({startOnLoad:false,gantt:{useWidth:1500}});try{await mermaid.run();document.getElementById("st").textContent="OK "+document.querySelectorAll("section svg").length}catch(e){document.getElementById("st").textContent="ERR "+e.message}</script></body></html>
